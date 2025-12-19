@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/weather_service.dart';
 import '../model/weather_model.dart';
 
+const String kOpenWeatherApiKey = 'd55378ca16edac42eb897e3755da67db';
+
 class CuacaScreen extends StatefulWidget {
   const CuacaScreen({Key? key}) : super(key: key);
 
@@ -10,7 +12,7 @@ class CuacaScreen extends StatefulWidget {
 }
 
 class _CuacaScreenState extends State<CuacaScreen> {
-  final WeatherService _weatherService = WeatherService();
+  final WeatherService _weatherService = WeatherService(apiKey: kOpenWeatherApiKey);
   WeatherModel? _currentWeather;
   bool _isLoading = false;
 
@@ -49,13 +51,13 @@ class _CuacaScreenState extends State<CuacaScreen> {
         child: SafeArea(
           child: _isLoading
               ? const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          )
               : _currentWeather == null
-                  ? _buildErrorState()
-                  : _buildWeatherContent(),
+              ? _buildErrorState()
+              : _buildWeatherContent(),
         ),
       ),
     );
@@ -82,7 +84,7 @@ class _CuacaScreenState extends State<CuacaScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Tidak dapat terhubung ke server BMKG',
+            'Tidak dapat terhubung ke server',
             style: TextStyle(
               color: Colors.white.withOpacity(0.8),
               fontSize: 14,
@@ -205,7 +207,7 @@ class _CuacaScreenState extends State<CuacaScreen> {
                       child: _buildWeatherDetailCard(
                         Icons.air,
                         'Angin',
-                        '${_currentWeather!.windSpeed ?? '--'} km/h',
+                        '${_currentWeather!.windSpeed ?? '--'} m/s',
                       ),
                     ),
                   ],
@@ -251,7 +253,7 @@ class _CuacaScreenState extends State<CuacaScreen> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Informasi cuaca diperbarui secara berkala dari Badan Meteorologi, Klimatologi, dan Geofisika (BMKG) Indonesia untuk wilayah Bandung.',
+                  'Informasi cuaca diperbarui secara berkala dari OpenWeatherMap untuk wilayah Bandung, Indonesia.',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
                     fontSize: 12,
@@ -263,24 +265,24 @@ class _CuacaScreenState extends State<CuacaScreen> {
           ),
           const SizedBox(height: 30),
           Text(
-            'Sumber: BMKG Indonesia',
+            'Sumber: OpenWeatherMap',
             style: TextStyle(
               color: Colors.white.withOpacity(0.6),
               fontSize: 12,
             ),
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 100), // Space for bottom navigation
         ],
       ),
     );
   }
 
   Widget _buildWeatherDetailCard(
-    IconData icon,
-    String label,
-    String value, {
-    bool fullWidth = false,
-  }) {
+      IconData icon,
+      String label,
+      String value, {
+        bool fullWidth = false,
+      }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -293,82 +295,81 @@ class _CuacaScreenState extends State<CuacaScreen> {
       ),
       child: fullWidth
           ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, color: Colors.white, size: 30),
-                    const SizedBox(width: 15),
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 30),
+              const SizedBox(width: 15),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
                 ),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              children: [
-                Icon(icon, color: Colors.white, size: 35),
-                const SizedBox(height: 10),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+        ],
+      )
+          : Column(
+        children: [
+          Icon(icon, color: Colors.white, size: 35),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   List<Color> _getWeatherGradient() {
     if (_currentWeather == null) {
-      return [const Color(0xFF4A90E2), const Color(0xFF357ABD)];
+      return [const Color(0xFF00897B), const Color(0xFF00897B)];
     }
 
     final code = int.tryParse(_currentWeather!.weatherCode ?? '0') ?? 0;
 
     // Cerah
-    if (code == 0) {
-      return [const Color(0xFFFFA726), const Color(0xFFFF7043)];
+    if (code == 0 || code == 800) {
+      return [const Color(0xFF00897B), const Color(0xFF00897B)];
     }
     // Cerah Berawan
-    if (code == 1 || code == 2) {
-      return [const Color(0xFF5DADE2), const Color(0xFF3498DB)];
+    if (code == 1 || code == 2 || (code >= 801 && code <= 802)) {
+      return [const Color(0xFF00897B), const Color(0xFF00897B)];
     }
     // Berawan
-    if (code == 3 || code == 4) {
-      return [const Color(0xFF78909C), const Color(0xFF546E7A)];
+    if (code == 3 || code == 4 || (code >= 803 && code <= 804)) {
+      return [const Color(0xFF00897B), const Color(0xFF00897B)];
     }
     // Hujan
-    if (code >= 60 && code <= 97) {
-      return [const Color(0xFF5C6BC0), const Color(0xFF3949AB)];
+    if ((code >= 60 && code <= 97) || (code >= 500 && code <= 531)) {
+      return [const Color(0xFF00897B), const Color(0xFF00897B)];
     }
 
     // Default
-    return [const Color(0xFF4A90E2), const Color(0xFF357ABD)];
+    return [const Color(0xFF00897B), const Color(0xFF00897B)];
   }
 }
-

@@ -5,11 +5,11 @@ import 'dart:typed_data';
 
 class DataService {
   Future insertUsers(String appid, String username, String nama, String email, String password, String role) async {
-    String uri = 'https://api.247go.app/v5/insert/';
+    String uri = 'https://io.etter.cloud/v4/insert';
 
     try {
       final response = await http.post(Uri.parse(uri), body: {
-        'token': '6943ac92380728163dc2a161',
+        'token': '694374a1bcd8c5a924e91bca',
         'project': 'jaga_lansia',
         'collection': 'users',
         'appid': appid,
@@ -17,26 +17,78 @@ class DataService {
         'nama': nama,
         'email': email,
         'password': password,
-        'role': role,
+        'role': role
       });
-
-      print('Insert Response Status: ${response.statusCode}');
-      print('Insert Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         return response.body;
       } else {
-        print('Insert Error: ${response.statusCode}');
+        // Return an empty array
         return '[]';
       }
     } catch (e) {
-      print('Insert Exception: $e');
+      // Print error here
+      return '[]';
+    }
+  }
+
+  Future insertObat(String appid, String nama_obat, String harga, String dosis, String keterangan) async {
+    String uri = 'https://io.etter.cloud/v4/insert';
+
+    try {
+      final response = await http.post(Uri.parse(uri), body: {
+        'token': '694374a1bcd8c5a924e91bca',
+        'project': 'jaga_lansia',
+        'collection': 'obat',
+        'appid': appid,
+        'nama_obat': nama_obat,
+        'harga': harga,
+        'dosis': dosis,
+        'keterangan': keterangan
+      });
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        // Return an empty array
+        return '[]';
+      }
+    } catch (e) {
+      // Print error here
+      return '[]';
+    }
+  }
+
+  Future insertTransaksi(String appid, String nama_obat, String nama_user, String jumlah_dibeli, String total_harga, String status_pembelian) async {
+    String uri = 'https://io.etter.cloud/v4/insert';
+
+    try {
+      final response = await http.post(Uri.parse(uri), body: {
+        'token': '694374a1bcd8c5a924e91bca',
+        'project': 'jaga_lansia',
+        'collection': 'transaksi',
+        'appid': appid,
+        'nama_obat': nama_obat,
+        'nama_user': nama_user,
+        'jumlah_dibeli': jumlah_dibeli,
+        'total_harga': total_harga,
+        'status_pembelian': status_pembelian
+      });
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        // Return an empty array
+        return '[]';
+      }
+    } catch (e) {
+      // Print error here
       return '[]';
     }
   }
 
   Future selectAll(String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/select_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
+    String uri = 'https://io.etter.cloud/v4/select_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -54,7 +106,7 @@ class DataService {
   }
 
   Future selectId(String token, String project, String collection, String appid, String id) async {
-    String uri = 'https://api.247go.app/v5/select_id/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/id/' + id;
+    String uri = 'https://io.etter.cloud/v4/select_id/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/id/' + id;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -72,32 +124,25 @@ class DataService {
   }
 
   Future selectWhere(String token, String project, String collection, String appid, String where_field, String where_value) async {
-    String uri = 'https://api.247go.app/v5/select_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
-
-    print('SelectWhere URI: $uri');
+    String uri = 'https://io.etter.cloud/v4/select_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
 
-      print('SelectWhere Response Status: ${response.statusCode}');
-      print('SelectWhere Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         return response.body;
       } else {
-        print('SelectWhere Error: ${response.statusCode}');
         // Return an empty array
         return '[]';
       }
     } catch (e) {
-      print('SelectWhere Exception: $e');
       // Print error here
       return '[]';
     }
   }
 
   Future selectOrWhere(String token, String project, String collection, String appid, String or_where_field, String or_where_value) async {
-    String uri = 'https://api.247go.app/v5/select_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
+    String uri = 'https://io.etter.cloud/v4/select_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -115,7 +160,7 @@ class DataService {
   }
 
   Future selectWhereLike(String token, String project, String collection, String appid, String wlike_field, String wlike_value) async {
-    String uri = 'https://api.247go.app/v5/select_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
+    String uri = 'https://io.etter.cloud/v4/select_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -133,7 +178,7 @@ class DataService {
   }
 
   Future selectWhereIn(String token, String project, String collection, String appid, String win_field, String win_value) async {
-    String uri = 'https://api.247go.app/v5/select_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
+    String uri = 'https://io.etter.cloud/v4/select_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -151,7 +196,7 @@ class DataService {
   }
 
   Future selectWhereNotIn(String token, String project, String collection, String appid, String wnotin_field, String wnotin_value) async {
-    String uri = 'https://api.247go.app/v5/select_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
+    String uri = 'https://io.etter.cloud/v4/select_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -169,7 +214,7 @@ class DataService {
   }
 
   Future removeAll(String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/remove_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
+    String uri = 'https://io.etter.cloud/v4/remove_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
 
     try {
       final response = await http.delete(Uri.parse(uri));
@@ -186,31 +231,24 @@ class DataService {
   }
 
   Future removeId(String token, String project, String collection, String appid, String id) async {
-    String uri = 'https://api.247go.app/v5/remove_id/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/id/' + id;
-
-    print('Remove ID URI: $uri');
-    print('Removing user with ID: $id');
+    String uri = 'https://io.etter.cloud/v4/remove_id/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/id/' + id;
 
     try {
       final response = await http.delete(Uri.parse(uri));
 
-      print('Remove Response Status: ${response.statusCode}');
-      print('Remove Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Remove Error: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Remove Exception: $e');
+      // Print error here
       return false;
     }
   }
 
   Future removeWhere(String token, String project, String collection, String appid, String where_field, String where_value) async {
-    String uri = 'https://api.247go.app/v5/remove_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
+    String uri = 'https://io.etter.cloud/v4/remove_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
 
     try {
       final response = await http.delete(Uri.parse(uri));
@@ -227,7 +265,7 @@ class DataService {
   }
 
   Future removeOrWhere(String token, String project, String collection, String appid, String or_where_field, String or_where_value) async {
-    String uri = 'https://api.247go.app/v5/remove_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
+    String uri = 'https://io.etter.cloud/v4/remove_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
 
     try {
       final response = await http.delete(Uri.parse(uri));
@@ -244,7 +282,7 @@ class DataService {
   }
 
   Future removeWhereLike(String token, String project, String collection, String appid, String wlike_field, String wlike_value) async {
-    String uri = 'https://api.247go.app/v5/remove_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
+    String uri = 'https://io.etter.cloud/v4/remove_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
 
     try {
       final response = await http.delete(Uri.parse(uri));
@@ -261,7 +299,7 @@ class DataService {
   }
 
   Future removeWhereIn(String token, String project, String collection, String appid, String win_field, String win_value) async {
-    String uri = 'https://api.247go.app/v5/remove_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
+    String uri = 'https://io.etter.cloud/v4/remove_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
 
     try {
       final response = await http.delete(Uri.parse(uri));
@@ -278,7 +316,7 @@ class DataService {
   }
 
   Future removeWhereNotIn(String token, String project, String collection, String appid, String wnotin_field, String wnotin_value) async {
-    String uri = 'https://api.247go.app/v5/remove_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
+    String uri = 'https://io.etter.cloud/v4/remove_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
 
     try {
       final response = await http.delete(Uri.parse(uri));
@@ -295,7 +333,7 @@ class DataService {
   }
 
   Future updateAll(String update_field, String update_value, String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/update_all/';
+    String uri = 'https://io.etter.cloud/v4/update_all';
 
     try {
       final response = await http.put(Uri.parse(uri),body: {
@@ -318,39 +356,31 @@ class DataService {
   }
 
   Future updateId(String update_field, String update_value, String token, String project, String collection, String appid, String id) async {
-    String uri = 'https://api.247go.app/v5/update_id/';
-
-    print('Update ID URI: $uri');
-    print('Update params: field=$update_field, value=$update_value, id=$id');
+    String uri = 'https://io.etter.cloud/v4/update_id';
 
     try {
-      final response = await http.put(Uri.parse(uri), body: {
+      final response = await http.put(Uri.parse(uri),body: {
         'update_field': update_field,
         'update_value': update_value,
         'token': token,
         'project': project,
         'collection': collection,
         'appid': appid,
-        'id': id,
+        'id': id
       });
-
-      print('Update Response Status: ${response.statusCode}');
-      print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Update Error: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      print('Update Exception: $e');
       return false;
     }
   }
 
   Future updateWhere(String where_field, String where_value, String update_field, String update_value, String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/update_where/';
+    String uri = 'https://io.etter.cloud/v4/update_where';
 
     try {
       final response = await http.put(Uri.parse(uri),body: {
@@ -375,7 +405,7 @@ class DataService {
   }
 
   Future updateOrWhere(String or_where_field, String or_where_value, String update_field, String update_value, String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/update_or_where/';
+    String uri = 'https://io.etter.cloud/v4/update_or_where';
 
     try {
       final response = await http.put(Uri.parse(uri),body: {
@@ -400,7 +430,7 @@ class DataService {
   }
 
   Future updateWhereLike(String wlike_field, String wlike_value, String update_field, String update_value, String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/update_where_like/';
+    String uri = 'https://io.etter.cloud/v4/update_where_like';
 
     try {
       final response = await http.put(Uri.parse(uri),body: {
@@ -425,7 +455,7 @@ class DataService {
   }
 
   Future updateWhereIn(String win_field, String win_value, String update_field, String update_value, String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/update_where_in/';
+    String uri = 'https://io.etter.cloud/v4/update_where_in';
 
     try {
       final response = await http.put(Uri.parse(uri),body: {
@@ -450,7 +480,7 @@ class DataService {
   }
 
   Future updateWhereNotIn(String wnotin_field, String wnotin_value, String update_field, String update_value, String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/update_where_not_in/';
+    String uri = 'https://io.etter.cloud/v4/update_where_not_in';
 
     try {
       final response = await http.put(Uri.parse(uri),body: {
@@ -475,7 +505,7 @@ class DataService {
   }
 
   Future firstAll(String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/first_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
+    String uri = 'https://io.etter.cloud/v4/first_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -493,7 +523,7 @@ class DataService {
   }
 
   Future firstWhere(String token, String project, String collection, String appid, String where_field, String where_value) async {
-    String uri = 'https://api.247go.app/v5/first_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
+    String uri = 'https://io.etter.cloud/v4/first_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -511,7 +541,7 @@ class DataService {
   }
 
   Future firstOrWhere(String token, String project, String collection, String appid, String or_where_field, String or_where_value) async {
-    String uri = 'https://api.247go.app/v5/first_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
+    String uri = 'https://io.etter.cloud/v4/first_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -529,7 +559,7 @@ class DataService {
   }
 
   Future firstWhereLike(String token, String project, String collection, String appid, String wlike_field, String wlike_value) async {
-    String uri = 'https://api.247go.app/v5/first_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
+    String uri = 'https://io.etter.cloud/v4/first_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -547,7 +577,7 @@ class DataService {
   }
 
   Future firstWhereIn(String token, String project, String collection, String appid, String win_field, String win_value) async {
-    String uri = 'https://api.247go.app/v5/first_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
+    String uri = 'https://io.etter.cloud/v4/first_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -565,7 +595,7 @@ class DataService {
   }
 
   Future firstWhereNotIn(String token, String project, String collection, String appid, String wnotin_field, String wnotin_value) async {
-    String uri = 'https://api.247go.app/v5/first_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
+    String uri = 'https://io.etter.cloud/v4/first_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -583,7 +613,7 @@ class DataService {
   }
 
   Future lastAll(String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/last_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
+    String uri = 'https://io.etter.cloud/v4/last_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -601,7 +631,7 @@ class DataService {
   }
 
   Future lastWhere(String token, String project, String collection, String appid, String where_field, String where_value) async {
-    String uri = 'https://api.247go.app/v5/last_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
+    String uri = 'https://io.etter.cloud/v4/last_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -619,7 +649,7 @@ class DataService {
   }
 
   Future lastOrWhere(String token, String project, String collection, String appid, String or_where_field, String or_where_value) async {
-    String uri = 'https://api.247go.app/v5/last_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
+    String uri = 'https://io.etter.cloud/v4/last_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -637,7 +667,7 @@ class DataService {
   }
 
   Future lastWhereLike(String token, String project, String collection, String appid, String wlike_field, String wlike_value) async {
-    String uri = 'https://api.247go.app/v5/last_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
+    String uri = 'https://io.etter.cloud/v4/last_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -655,7 +685,7 @@ class DataService {
   }
 
   Future lastWhereIn(String token, String project, String collection, String appid, String win_field, String win_value) async {
-    String uri = 'https://api.247go.app/v5/last_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
+    String uri = 'https://io.etter.cloud/v4/last_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -673,7 +703,7 @@ class DataService {
   }
 
   Future lastWhereNotIn(String token, String project, String collection, String appid, String wnotin_field, String wnotin_value) async {
-    String uri = 'https://api.247go.app/v5/last_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
+    String uri = 'https://io.etter.cloud/v4/last_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -691,7 +721,7 @@ class DataService {
   }
 
   Future randomAll(String token, String project, String collection, String appid) async {
-    String uri = 'https://api.247go.app/v5/random_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
+    String uri = 'https://io.etter.cloud/v4/random_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -709,7 +739,7 @@ class DataService {
   }
 
   Future randomWhere(String token, String project, String collection, String appid, String where_field, String where_value) async {
-    String uri = 'https://api.247go.app/v5/random_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
+    String uri = 'https://io.etter.cloud/v4/random_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/where_field/' + where_field + '/where_value/' + where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -727,7 +757,7 @@ class DataService {
   }
 
   Future randomOrWhere(String token, String project, String collection, String appid, String or_where_field, String or_where_value) async {
-    String uri = 'https://api.247go.app/v5/random_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
+    String uri = 'https://io.etter.cloud/v4/random_or_where/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/or_where_field/' + or_where_field + '/or_where_value/' + or_where_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -745,7 +775,7 @@ class DataService {
   }
 
   Future randomWhereLike(String token, String project, String collection, String appid, String wlike_field, String wlike_value) async {
-    String uri = 'https://api.247go.app/v5/random_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
+    String uri = 'https://io.etter.cloud/v4/random_where_like/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wlike_field/' + wlike_field + '/wlike_value/' + wlike_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -763,7 +793,7 @@ class DataService {
   }
 
   Future randomWhereIn(String token, String project, String collection, String appid, String win_field, String win_value) async {
-    String uri = 'https://api.247go.app/v5/random_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
+    String uri = 'https://io.etter.cloud/v4/random_where_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/win_field/' + win_field + '/win_value/' + win_value;
 
     try {
       final response = await http.get(Uri.parse(uri));
@@ -781,7 +811,7 @@ class DataService {
   }
 
   Future randomWhereNotIn(String token, String project, String collection, String appid, String wnotin_field, String wnotin_value) async {
-    String uri = 'https://api.247go.app/v5/random_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
+    String uri = 'https://io.etter.cloud/v4/random_where_not_in/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid + '/wnotin_field/' + wnotin_field + '/wnotin_value/' + wnotin_value;
 
     try {
       final response = await http.get(Uri.parse(uri));

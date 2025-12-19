@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import 'register_screen.dart';
 import 'welcome_screen.dart';
@@ -42,6 +43,18 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (result['success']) {
+        // Simpan data user ke SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', result['user']['id'] ?? '');
+        await prefs.setString('userName', result['user']['username'] ?? '');
+        await prefs.setString('userNama', result['user']['nama'] ?? '');
+        await prefs.setString('userEmail', result['user']['email'] ?? '');
+        await prefs.setString('userRole', result['user']['role'] ?? '');
+
+        print('User data saved to SharedPreferences:');
+        print('userName: ${result['user']['username']}');
+        print('userEmail: ${result['user']['email']}');
+
         final role = result['user']['role'];
 
         if (!mounted) return;

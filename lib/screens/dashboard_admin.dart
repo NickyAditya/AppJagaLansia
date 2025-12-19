@@ -4,6 +4,8 @@ import '../services/user_service.dart';
 import '../model/user_model.dart';
 import '../widgets/user_dialogs.dart';
 import 'login_screen.dart';
+import 'obat_screen.dart';
+import 'transaksi_screen.dart';
 
 class DashboardAdmin extends StatefulWidget {
   const DashboardAdmin({super.key});
@@ -76,6 +78,8 @@ class _DashboardAdminState extends State<DashboardAdmin> {
         children: [
           DashboardPage(userService: _userService),
           UsersManagementPage(userService: _userService),
+          const ObatScreen(),
+          const TransaksiScreen(),
           const SensorDataPage(),
           const SettingsPage(),
         ],
@@ -100,8 +104,16 @@ class _DashboardAdminState extends State<DashboardAdmin> {
             label: 'Users',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.medical_services),
+            label: 'Obat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Transaksi',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.sensors),
-            label: 'Sensor Data',
+            label: 'Sensor',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -1022,3 +1034,48 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
+// Transaksi Placeholder Page
+class TransaksiPlaceholderPage extends StatelessWidget {
+  const TransaksiPlaceholderPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Manajemen Transaksi',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00897B),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Fitur Transaksi',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Akan segera hadir',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

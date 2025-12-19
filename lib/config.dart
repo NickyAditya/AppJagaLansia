@@ -1,4 +1,4 @@
-const String token = '6943ac92380728163dc2a161';
+const String token = '694374a1bcd8c5a924e91bca';
 const String project = 'jaga_lansia';
-const String appid = '6943ad1a380728163dc2a169';
-const String fileUri = 'https://api.247go.app/v5/';
+const String appid = '694509a5bcd8c5a924e91be3';
+const String fileUri = 'https://io.etter.cloud/v4/';
