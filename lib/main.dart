@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'screens/welcome_screen.dart';
+import 'screens/admin_welcome_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +21,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00897B)),
         useMaterial3: true,
       ),
-      home: const WelcomeScreen(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/welcome': (context) => const WelcomeScreen(),
+        '/admin-welcome': (context) => const AdminWelcomeScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }

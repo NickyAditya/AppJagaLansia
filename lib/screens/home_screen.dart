@@ -1,665 +1,499 @@
 import 'package:flutter/material.dart';
+import '../services/weather_service.dart';
+import '../model/weather_model.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+  final WeatherService _weatherService = WeatherService();
+  WeatherModel? _currentWeather;
+  bool _isLoadingWeather = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWeather();
+  }
+
+  Future<void> _fetchWeather() async {
+    setState(() {
+      _isLoadingWeather = true;
+    });
+
+    final weather = await _weatherService.getCurrentWeatherWithRetry();
+
+    setState(() {
+      _currentWeather = weather;
+      _isLoadingWeather = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF00897B),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          'Jaga Lansia',
+          style: TextStyle(
+            color: Color(0xFF2D3748),
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: Color(0xFF2D3748)),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined, color: Color(0xFF2D3748)),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  // Welcome Section
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF667EEA).withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Row(
                       children: [
-                        Text(
-                          'Jaga Lansia',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Selamat Datang!',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Pantau kesehatan lansia dengan mudah',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          'Jaga orang tua dimanapun dan\nkapanpun',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const Icon(
+                            Icons.elderly,
+                            size: 40,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  // Grandparents illustration
-                  Image.asset(
-                    'assets/grandparents.png',
-                    width: 120,
-                    height: 140,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 120,
-                        height: 140,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF8D6E63),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.elderly,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
+                  const SizedBox(height: 24),
+
+                  // Quick Actions
+                  const Text(
+                    'Menu Utama',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2D3748),
+                    ),
                   ),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 1.1,
+                    children: [
+                      _buildMenuCard(
+                        icon: Icons.monitor_heart_outlined,
+                        title: 'Monitoring',
+                        color: const Color(0xFFFF6B9D),
+                        onTap: () {},
+                      ),
+                      _buildMenuCard(
+                        icon: Icons.calendar_today_outlined,
+                        title: 'Jadwal',
+                        color: const Color(0xFF4FACFE),
+                        onTap: () {},
+                      ),
+                      _buildMenuCard(
+                        icon: Icons.medical_services_outlined,
+                        title: 'Kesehatan',
+                        color: const Color(0xFF43E97B),
+                        onTap: () {},
+                      ),
+                      _buildMenuCard(
+                        icon: Icons.history_outlined,
+                        title: 'Riwayat',
+                        color: const Color(0xFFFFA726),
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 100), // Space for bottom bar
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            // Main Content
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      // Tingkat Kesehatan Card
-                      _buildHealthCard(),
-                      const SizedBox(height: 15),
-                      // Detail Jantung Card
-                      _buildHeartDetailCard(),
-                      const SizedBox(height: 15),
-                      // Notifikasi Sensor Card
-                      _buildSensorNotificationCard(),
-                      const SizedBox(height: 15),
-                      // Jadwal Terdekat Card
-                      _buildScheduleCard(),
-                      const SizedBox(height: 15),
-                      // Status Analisa Pola Card
-                      _buildPatternAnalysisCard(),
-                      const SizedBox(height: 15),
-                      // Bottom Cards Row
-                      Row(
-                        children: [
-                          Expanded(child: _buildSleepQualityCard()),
-                          const SizedBox(width: 15),
-                          Expanded(child: _buildStressLevelCard()),
-                        ],
-                      ),
-                      const SizedBox(height: 80),
-                    ],
-                  ),
-                ),
+          ),
+
+          // Modern Weather Bottom Bar
+          _buildWeatherBottomBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuCard({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(
+                icon,
+                size: 36,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF2D3748),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.white,
-        child: const Icon(Icons.home, color: Color(0xFF00897B), size: 30),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
-  Widget _buildHealthCard() {
+  Widget _buildWeatherBottomBar() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'TINGKAT KESEHATAN',
-            style: TextStyle(
-              color: Color(0xFF00897B),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              // Circular Progress
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: CircularProgressIndicator(
-                        value: 0.74,
-                        strokeWidth: 10,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF4CAF50),
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      '74%',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHealthItem('Hal yang perlu diperhatikan', Colors.red),
-                    _buildHealthItem('Kualitas tidur', Colors.orange),
-                    _buildHealthItem('Pola makan', Colors.green),
-                  ],
-                ),
-              ),
-            ],
+        gradient: LinearGradient(
+          colors: _getWeatherGradient(),
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-    );
-  }
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        child: Stack(
+          children: [
+            // Background Pattern
+            Positioned.fill(
+              child: CustomPaint(
+                painter: WeatherPatternPainter(),
+              ),
+            ),
 
-  Widget _buildHealthItem(String text, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
+            // Content
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: _isLoadingWeather
+                  ? _buildLoadingWeather()
+                  : _currentWeather != null
+                  ? _buildWeatherContent()
+                  : _buildErrorWeather(),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeartDetailCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEE),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.favorite, color: Colors.red, size: 40),
-          const SizedBox(width: 15),
-          Column(
+  Widget _buildLoadingWeather() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          'Memuat data cuaca...',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeatherContent() {
+    return Row(
+      children: [
+        // Weather Icon
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Text(
+            _currentWeather!.getWeatherIcon(),
+            style: const TextStyle(fontSize: 32),
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        // Weather Info
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Detak Jantung',
+              Text(
+                _currentWeather!.locationName ?? 'Bandung',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _currentWeather!.weatherDescription ?? 'Memuat...',
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black54,
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 13,
                 ),
-              ),
-              const SizedBox(height: 5),
-              RichText(
-                text: const TextSpan(
-                  style: TextStyle(color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: '60 bpm',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Status',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 5),
-              RichText(
-                text: const TextSpan(
-                  style: TextStyle(color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: 'Dibawah rata-rata',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+        ),
 
-  Widget _buildSensorNotificationCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'NOTIFIKASI SENSOR',
-            style: TextStyle(
-              color: Color(0xFF00897B),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+        // Temperature Display
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(15),
           ),
-          const SizedBox(height: 15),
-          Row(
+          child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.orange[100],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.notifications_active,
-                  color: Colors.orange,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildSensorItem(),
-                    const SizedBox(height: 8),
-                    _buildSensorItem(),
-                    const SizedBox(height: 8),
-                    _buildSensorItem(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSensorItem() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF00897B),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Sensor notification',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScheduleCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'JADWAL TERDEKAT',
-            style: TextStyle(
-              color: Color(0xFF00897B),
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.red[100],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.medication,
-                  color: Colors.red,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(width: 15),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Waktu',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    Text(
-                      'Jenis',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    Text(
-                      'Dosis',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    ': Pagi',
-                    style: TextStyle(
-                      fontSize: 12,
+                    _currentWeather!.getTemperatureDisplay(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    ': Paracetamol',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    ': 2 SDM',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.water_drop,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _currentWeather!.getHumidityDisplay(),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(width: 15),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00897B),
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check, size: 16, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text(
-                      'Jadwalkan',
-                      style: TextStyle(fontSize: 10, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPatternAnalysisCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: const BoxDecoration(
-              color: Color(0xFF4CAF50),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.check,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 15),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'STATUS ANALISA POLA',
-                  style: TextStyle(
-                    color: Color(0xFF00897B),
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  'Sesuai dengan pola',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(
-            Icons.psychology,
-            size: 40,
-            color: Colors.grey,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSleepQualityCard() {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'KUALITAS TIDUR',
-            style: TextStyle(
-              color: Color(0xFF00897B),
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Icon(
-            Icons.bed,
-            size: 40,
-            color: Colors.orange,
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            '70%',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStressLevelCard() {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF00897B), width: 2),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'TINGKAT STRESS',
-            style: TextStyle(
-              color: Color(0xFF00897B),
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Icon(
-            Icons.emoji_emotions,
-            size: 40,
-            color: Colors.green,
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            '5%',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF00897B),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: BottomAppBar(
-        color: const Color(0xFF00897B),
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.home, color: Colors.white, size: 30),
-                onPressed: () {
-                  setState(() {
-                    _selectedIndex = 0;
-                  });
-                },
-              ),
-              const SizedBox(width: 40),
-              IconButton(
-                icon: const Icon(Icons.person, color: Colors.white, size: 30),
-                onPressed: () {
-                  setState(() {
-                    _selectedIndex = 1;
-                  });
-                },
-              ),
             ],
           ),
         ),
-      ),
+
+        // Refresh Button
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: _fetchWeather,
+          icon: const Icon(
+            Icons.refresh_rounded,
+            color: Colors.white,
+            size: 24,
+          ),
+          tooltip: 'Refresh Cuaca',
+        ),
+      ],
     );
+  }
+
+  Widget _buildErrorWeather() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.cloud_off,
+          color: Colors.white,
+          size: 20,
+        ),
+        const SizedBox(width: 12),
+        Text(
+          'Gagal memuat data cuaca',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: _fetchWeather,
+          icon: const Icon(
+            Icons.refresh,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Color> _getWeatherGradient() {
+    if (_currentWeather == null) {
+      return [const Color(0xFF4A90E2), const Color(0xFF357ABD)];
+    }
+
+    final code = int.tryParse(_currentWeather!.weatherCode ?? '0') ?? 0;
+
+    // Sunny
+    if (code == 0) {
+      return [const Color(0xFFFFA726), const Color(0xFFFF7043)];
+    }
+    // Partly Cloudy
+    if (code == 1 || code == 2) {
+      return [const Color(0xFF5DADE2), const Color(0xFF3498DB)];
+    }
+    // Cloudy
+    if (code == 3 || code == 4) {
+      return [const Color(0xFF78909C), const Color(0xFF546E7A)];
+    }
+    // Rainy
+    if (code >= 60 && code <= 97) {
+      return [const Color(0xFF5C6BC0), const Color(0xFF3949AB)];
+    }
+
+    // Default
+    return [const Color(0xFF4A90E2), const Color(0xFF357ABD)];
   }
 }
+
+// Custom Painter for Weather Pattern
+class WeatherPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..style = PaintingStyle.fill;
+
+    // Draw decorative circles
+    canvas.drawCircle(
+      Offset(size.width * 0.1, size.height * 0.3),
+      30,
+      paint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.9, size.height * 0.7),
+      40,
+      paint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.8, size.height * 0.2),
+      20,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
