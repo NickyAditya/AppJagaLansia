@@ -50,10 +50,16 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('userNama', result['user']['nama'] ?? '');
         await prefs.setString('userEmail', result['user']['email'] ?? '');
         await prefs.setString('userRole', result['user']['role'] ?? '');
+        // Gunakan appid dari response, jika tidak ada gunakan id
+        await prefs.setString('appid', result['user']['appid'] ?? result['user']['id'] ?? '');
 
         print('User data saved to SharedPreferences:');
+        print('userId: ${result['user']['id']}');
         print('userName: ${result['user']['username']}');
+        print('userNama: ${result['user']['nama']}');
         print('userEmail: ${result['user']['email']}');
+        print('userRole: ${result['user']['role']}');
+        print('appid: ${result['user']['appid'] ?? result['user']['id']}');
 
         final role = result['user']['role'];
 
@@ -304,4 +310,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

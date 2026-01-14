@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'cuaca_screen.dart';
 import 'profile_screen.dart';
 import 'pembelian_user.dart';
+import 'jadwal_user_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -286,7 +287,7 @@ class HomeDashboard extends StatelessWidget {
                   color: const Color(0xFF4FACFE),
                   onTap: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const JadwalScreen()),
+                      MaterialPageRoute(builder: (_) => const JadwalUserScreen()),
                     );
                   },
                 ),

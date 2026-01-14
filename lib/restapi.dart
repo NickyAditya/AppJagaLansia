@@ -87,6 +87,111 @@ class DataService {
     }
   }
 
+  Future insertMax30102(String appid, String ir_value, String bpm, String average_bpm) async {
+    String uri = 'https://io.etter.cloud/v4/insert';
+
+    try {
+      final response = await http.post(Uri.parse(uri), body: {
+        'token': '694374a1bcd8c5a924e91bca',
+        'project': 'jaga_lansia',
+        'collection': 'max_30102',
+        'appid': appid,
+        'ir_value': ir_value,
+        'bpm': bpm,
+        'average_bpm': average_bpm
+      });
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        // Return an empty array
+        return '[]';
+      }
+    } catch (e) {
+      // Print error here
+      return '[]';
+    }
+  }
+
+  Future insertLm35(String appid, String suhu) async {
+    String uri = 'https://io.etter.cloud/v4/insert';
+
+    try {
+      final response = await http.post(Uri.parse(uri), body: {
+        'token': '694374a1bcd8c5a924e91bca',
+        'project': 'jaga_lansia',
+        'collection': 'lm35',
+        'appid': appid,
+        'suhu': suhu
+      });
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        // Return an empty array
+        return '[]';
+      }
+    } catch (e) {
+      // Print error here
+      return '[]';
+    }
+  }
+
+  Future insertMpu(String appid, String gyro_x, String gyro_y, String gyro_z) async {
+    String uri = 'https://io.etter.cloud/v4/insert';
+
+    try {
+      final response = await http.post(Uri.parse(uri), body: {
+        'token': '694374a1bcd8c5a924e91bca',
+        'project': 'jaga_lansia',
+        'collection': 'mpu',
+        'appid': appid,
+        'gyro_x': gyro_x,
+        'gyro_y': gyro_y,
+        'gyro_z': gyro_z
+      });
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        // Return an empty array
+        return '[]';
+      }
+    } catch (e) {
+      // Print error here
+      return '[]';
+    }
+  }
+
+  Future insertJadwal(String appid, String tanggal, String waktu, String kegiatan, String keterangan, String nama_user) async {
+    String uri = 'https://io.etter.cloud/v4/insert';
+
+    try {
+      final response = await http.post(Uri.parse(uri), body: {
+        'token': '694374a1bcd8c5a924e91bca',
+        'project': 'jaga_lansia',
+        'collection': 'jadwal',
+        'appid': appid,
+        'tanggal': tanggal,
+        'waktu': waktu,
+        'kegiatan': kegiatan,
+        'keterangan': keterangan,
+        'nama_user': nama_user
+      });
+
+      if (response.statusCode == 200) {
+        print('Insert jadwal success: ${response.body}');
+        return response.body;
+      } else {
+        print('Insert jadwal failed with status: ${response.statusCode}');
+        return '[]';
+      }
+    } catch (e) {
+      print('Insert jadwal error: $e');
+      return '[]';
+    }
+  }
+
   Future selectAll(String token, String project, String collection, String appid) async {
     String uri = 'https://io.etter.cloud/v4/select_all/token/' + token + '/project/' + project + '/collection/' + collection + '/appid/' + appid;
 

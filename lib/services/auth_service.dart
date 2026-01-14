@@ -163,6 +163,10 @@ class AuthService {
 
       print('Login successful for user: ${user.username}');
 
+      // Get appid from user data (use the _id or id field as appid)
+      String userAppid = user.id;
+      print('User appid: $userAppid');
+
       // Login successful
       return {
         'success': true,
@@ -173,6 +177,7 @@ class AuthService {
           'nama': user.nama,
           'email': user.email,
           'role': user.role,
+          'appid': userAppid, // Tambahkan appid ke response
         },
       };
     } catch (e, stackTrace) {
