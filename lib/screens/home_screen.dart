@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'cuaca_screen.dart';
 import 'profile_screen.dart';
 import 'pembelian_user.dart';
 import 'jadwal_user_screen.dart';
+import '../services/jadwal_service.dart';
+import '../model/jadwal_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -128,8 +131,58 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // Home Dashboard Widget (the main content)
-class HomeDashboard extends StatelessWidget {
+class HomeDashboard extends StatefulWidget {
   const HomeDashboard({Key? key}) : super(key: key);
+
+  @override
+  State<HomeDashboard> createState() => _HomeDashboardState();
+}
+
+class _HomeDashboardState extends State<HomeDashboard> {
+  final JadwalService _jadwalService = JadwalService();
+  List<JadwalModel> _upcomingSchedules = [];
+  bool _isLoading = true;
+  String _userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserAndSchedules();
+  }
+
+  Future<void> _loadUserAndSchedules() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _userName = prefs.getString('userName') ?? '';
+
+      print('Loading schedules for user: $_userName');
+
+      if (_userName.isNotEmpty) {
+        final schedules = await _jadwalService.getJadwalByUser(_userName);
+
+        // Sort by date and time to show upcoming schedules first
+        schedules.sort((a, b) {
+          final dateCompare = a.tanggal.compareTo(b.tanggal);
+          if (dateCompare != 0) return dateCompare;
+          return a.waktu.compareTo(b.waktu);
+        });
+
+        setState(() {
+          _upcomingSchedules = schedules.take(3).toList(); // Show only next 3 schedules
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading schedules: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -288,10 +341,12 @@ class HomeDashboard extends StatelessWidget {
                   icon: Icons.calendar_today_outlined,
                   title: 'Jadwal',
                   color: const Color(0xFF4FACFE),
-                  onTap: () {
-                    Navigator.of(context).push(
+                  onTap: () async {
+                    await Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const JadwalUserScreen()),
                     );
+                    // Reload schedules when returning from jadwal screen
+                    _loadUserAndSchedules();
                   },
                 ),
                 _buildMenuCard(
@@ -316,6 +371,200 @@ class HomeDashboard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 24),
+
+            // Upcoming Schedules Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Jadwal Mendatang',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2D3748),
+                  ),
+                ),
+                if (_upcomingSchedules.isNotEmpty)
+                  TextButton(
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const JadwalUserScreen()),
+                      );
+                      _loadUserAndSchedules();
+                    },
+                    child: const Text('Lihat Semua'),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            _isLoading
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : _upcomingSchedules.isEmpty
+                    ? Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: Colors.grey.shade100,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.event_busy,
+                                size: 48,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Belum ada jadwal',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tambahkan jadwal untuk pengingat kegiatan Anda',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => const JadwalUserScreen()),
+                                  );
+                                  _loadUserAndSchedules();
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text('Tambah Jadwal'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF00897B),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Column(
+                        children: _upcomingSchedules.map((schedule) {
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 2,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF4FACFE).withOpacity(0.1),
+                                    Colors.white,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                leading: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF4FACFE).withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.event,
+                                    color: Color(0xFF4FACFE),
+                                    size: 24,
+                                  ),
+                                ),
+                                title: Text(
+                                  schedule.kegiatan,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_today,
+                                          size: 14,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          schedule.tanggal,
+                                          style: const TextStyle(fontSize: 13),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        const Icon(
+                                          Icons.access_time,
+                                          size: 14,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          schedule.waktu,
+                                          style: const TextStyle(fontSize: 13),
+                                        ),
+                                      ],
+                                    ),
+                                    if (schedule.keterangan.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        schedule.keterangan,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                                onTap: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => const JadwalUserScreen()),
+                                  );
+                                  _loadUserAndSchedules();
+                                },
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
             const SizedBox(height: 20),
           ],
         ),
