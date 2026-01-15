@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
+import '../services/jadwal_service.dart';
 import '../model/user_model.dart';
+import '../model/jadwal_model.dart';
 import '../widgets/user_dialogs.dart';
 import 'login_screen.dart';
 import 'obat_screen.dart';
@@ -768,8 +770,59 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
 }
 
 // Sensor Data Page
-class SensorDataPage extends StatelessWidget {
+class SensorDataPage extends StatefulWidget {
   const SensorDataPage({super.key});
+
+  @override
+  State<SensorDataPage> createState() => _SensorDataPageState();
+}
+
+class _SensorDataPageState extends State<SensorDataPage> {
+  final JadwalService _jadwalService = JadwalService();
+  List<JadwalModel> _jadwalRujuk = [];
+  bool _isLoadingRujuk = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadJadwalRujuk();
+  }
+
+  Future<void> _loadJadwalRujuk() async {
+    setState(() {
+      _isLoadingRujuk = true;
+    });
+
+    try {
+      final allJadwal = await _jadwalService.getAllJadwal();
+      final rujukOnly = allJadwal.where((jadwal) =>
+        jadwal.kegiatan.toLowerCase().contains('rujuk')
+      ).toList();
+
+      setState(() {
+        _jadwalRujuk = rujukOnly;
+        _isLoadingRujuk = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingRujuk = false;
+      });
+    }
+  }
+
+  Color _getStatusColor(String keterangan) {
+    switch (keterangan.toLowerCase()) {
+      case 'pending':
+      case 'tertunda':
+        return Colors.orange;
+      case 'diterima':
+        return Colors.green;
+      case 'ditolak':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -832,55 +885,210 @@ class SensorDataPage extends StatelessWidget {
               ),
             ),
           ),
-          // const SizedBox(height: 16),
-          // const Text(
-          //   'Data Sensor',
-          //   style: TextStyle(
-          //     fontSize: 18,
-          //     fontWeight: FontWeight.bold,
-          //     color: Color(0xFF2D3748),
-          //   ),
-          // ),
-          // const SizedBox(height: 12),
-          // Expanded(
-          //   child: ListView.builder(
-          //     itemCount: 10,
-          //     itemBuilder: (context, index) {
-          //       return Card(
-          //         margin: const EdgeInsets.only(bottom: 12),
-          //         child: ExpansionTile(
-          //           leading: Container(
-          //             padding: const EdgeInsets.all(8),
-          //             decoration: BoxDecoration(
-          //               color: const Color(0xFF00897B).withOpacity(0.1),
-          //               shape: BoxShape.circle,
-          //             ),
-          //             child: const Icon(
-          //               Icons.sensors,
-          //               color: Color(0xFF00897B),
-          //             ),
-          //           ),
-          //           title: Text('ESP32-00${index + 1}'),
-          //           subtitle: Text('Last update: ${index + 1} min ago'),
-          //           children: [
-          //             Padding(
-          //               padding: const EdgeInsets.all(16),
-          //               child: Column(
-          //                 children: [
-          //                   _buildSensorDataRow('Temperature', '36.5°C', Icons.thermostat, Colors.orange),
-          //                   const SizedBox(height: 8),
-          //                   _buildSensorDataRow('Heart Rate', '75 BPM', Icons.favorite, Colors.red),
-          //                   const SizedBox(height: 8),
-          //                   _buildSensorDataRow('SpO2', '98%', Icons.air, Colors.blue),
-          //                 ],
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       );
-          //     },
-          //   ),
-          // ),
+          const SizedBox(height: 16),
+
+          // Pengingat Jadwal Rujuk
+          if (_isLoadingRujuk)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_jadwalRujuk.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.red.shade400,
+                    Colors.red.shade600,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.local_hospital,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Pengingat Jadwal Rujuk',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Perhatian: Ada pasien yang memerlukan rujukan',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${_jadwalRujuk.length}',
+                          style: TextStyle(
+                            color: Colors.red.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: _jadwalRujuk.length > 3 ? 3 : _jadwalRujuk.length,
+                      separatorBuilder: (context, index) => const Divider(
+                        color: Colors.white24,
+                        height: 16,
+                      ),
+                      itemBuilder: (context, index) {
+                        final rujuk = _jadwalRujuk[index];
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    rujuk.nama_user,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getStatusColor(rujuk.keterangan),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      rujuk.keterangan,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    color: Colors.white70,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    rujuk.tanggal,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Icon(
+                                    Icons.access_time,
+                                    color: Colors.white70,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    rujuk.waktu,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (_jadwalRujuk.length > 3) ...[
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        '+ ${_jadwalRujuk.length - 3} rujukan lainnya',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
         ],
       ),
     );
