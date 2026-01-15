@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:math';
+import 'package:fl_chart/fl_chart.dart';
 import 'cuaca_screen.dart';
 import 'profile_screen.dart';
 import 'pembelian_user.dart';
@@ -373,66 +376,419 @@ class HomeDashboard extends StatelessWidget {
 
 // ----------------- Dummy Screens (placed in this file per request) -----------------
 
-class MonitoringScreen extends StatelessWidget {
+class MonitoringScreen extends StatefulWidget {
   const MonitoringScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy current BPM and recent readings
-    const int currentBpm = 58; // dummy
-    final status = currentBpm < 60 ? 'Di bawah rata-rata' : 'Normal';
-    final recent = [
-      {'bpm': 58, 'time': '08:12'},
-      {'bpm': 62, 'time': '07:00'},
-      {'bpm': 70, 'time': '06:30'},
-    ];
+  State<MonitoringScreen> createState() => _MonitoringScreenState();
+}
 
+class _MonitoringScreenState extends State<MonitoringScreen> {
+  int currentBpm = 72;
+  final List<int> bpmHistory = [72];
+  Timer? _timer;
+  final Random _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with some starting data
+    for (int i = 0; i < 10; i++) {
+      bpmHistory.add(60 + _random.nextInt(30));
+    }
+
+    // Start real-time monitoring - update every 2 seconds
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      setState(() {
+        // Generate realistic BPM values between 50-100
+        // Use previous value to create smoother transitions
+        int change = _random.nextInt(7) - 3; // -3 to +3
+        currentBpm = (currentBpm + change).clamp(50, 100);
+
+        bpmHistory.add(currentBpm);
+
+        // Keep only last 20 readings for the graph
+        if (bpmHistory.length > 20) {
+          bpmHistory.removeAt(0);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _getBpmStatus() {
+    if (currentBpm < 60) return 'Di bawah rata-rata';
+    if (currentBpm > 90) return 'Di atas rata-rata';
+    return 'Normal';
+  }
+
+  Color _getBpmColor() {
+    if (currentBpm < 60) return Colors.orange;
+    if (currentBpm > 90) return Colors.red;
+    return Colors.green;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF00897B),
-        title: const Text('Monitoring'),
+        title: const Text('Monitoring Real-Time'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.circle, color: Colors.red, size: 8),
+                    SizedBox(width: 6),
+                    Text('LIVE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Current BPM Card
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      _getBpmColor().withOpacity(0.1),
+                      _getBpmColor().withOpacity(0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.favorite, color: _getBpmColor(), size: 28),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Denyut Jantung',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      child: Text(
+                        '$currentBpm',
+                        key: ValueKey<int>(currentBpm),
+                        style: TextStyle(
+                          fontSize: 64,
+                          fontWeight: FontWeight.bold,
+                          color: _getBpmColor(),
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      'BPM',
+                      style: TextStyle(fontSize: 20, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: _getBpmColor().withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        _getBpmStatus(),
+                        style: TextStyle(
+                          color: _getBpmColor(),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Graph Card
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Denyut Jantung Saat Ini', style: TextStyle(fontSize: 16)),
+                    Row(
+                      children: const [
+                        Icon(Icons.show_chart, color: Color(0xFF00897B)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Grafik Real-Time',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
-                    Text('$currentBpm BPM', style: const TextStyle(fontSize: 44, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text(status, style: TextStyle(color: currentBpm < 60 ? Colors.orange : Colors.green)),
+                    const Text(
+                      'Perubahan BPM dalam 20 pembacaan terakhir',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 200,
+                      child: LineChart(
+                        LineChartData(
+                          gridData: FlGridData(
+                            show: true,
+                            drawVerticalLine: false,
+                            horizontalInterval: 10,
+                            getDrawingHorizontalLine: (value) {
+                              return FlLine(
+                                color: Colors.grey.withOpacity(0.2),
+                                strokeWidth: 1,
+                              );
+                            },
+                          ),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                interval: 5,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(
+                                    '${value.toInt()}',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 10,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                interval: 20,
+                                reservedSize: 35,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(
+                                    '${value.toInt()}',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 10,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
+                          ),
+                          minX: 0,
+                          maxX: (bpmHistory.length - 1).toDouble(),
+                          minY: 40,
+                          maxY: 110,
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: List.generate(
+                                bpmHistory.length,
+                                (index) => FlSpot(
+                                  index.toDouble(),
+                                  bpmHistory[index].toDouble(),
+                                ),
+                              ),
+                              isCurved: true,
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF00897B),
+                                  const Color(0xFF00897B).withOpacity(0.5),
+                                ],
+                              ),
+                              barWidth: 3,
+                              isStrokeCapRound: true,
+                              dotData: FlDotData(
+                                show: true,
+                                getDotPainter: (spot, percent, barData, index) {
+                                  return FlDotCirclePainter(
+                                    radius: index == bpmHistory.length - 1 ? 5 : 2,
+                                    color: index == bpmHistory.length - 1
+                                        ? Colors.red
+                                        : const Color(0xFF00897B),
+                                    strokeWidth: 2,
+                                    strokeColor: Colors.white,
+                                  );
+                                },
+                              ),
+                              belowBarData: BarAreaData(
+                                show: true,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF00897B).withOpacity(0.3),
+                                    const Color(0xFF00897B).withOpacity(0.0),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            const Text('Pembacaan Terakhir', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.separated(
-                itemCount: recent.length,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (context, i) {
-                  final r = recent[i];
-                  return ListTile(
-                    leading: const Icon(Icons.favorite, color: Color(0xFF00897B)),
-                    title: Text('${r['bpm']} BPM'),
-                    subtitle: Text('Waktu: ${r['time']}'),
-                  );
-                },
+
+            const SizedBox(height: 24),
+
+            // Statistics Card
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(Icons.analytics_outlined, color: Color(0xFF00897B)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Statistik',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatItem(
+                          'Min',
+                          '${bpmHistory.reduce((a, b) => a < b ? a : b)}',
+                          Colors.blue,
+                        ),
+                        _buildStatItem(
+                          'Rata-rata',
+                          '${(bpmHistory.reduce((a, b) => a + b) / bpmHistory.length).round()}',
+                          const Color(0xFF00897B),
+                        ),
+                        _buildStatItem(
+                          'Max',
+                          '${bpmHistory.reduce((a, b) => a > b ? a : b)}',
+                          Colors.orange,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Info Card
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              color: Colors.blue.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue.shade700),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Data ini adalah simulasi monitoring real-time dengan nilai BPM yang berubah setiap 2 detik.',
+                        style: TextStyle(
+                          color: Colors.blue.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.grey,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const Text(
+          'BPM',
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -113,8 +113,8 @@ class _DashboardAdminState extends State<DashboardAdmin> {
             label: 'Transaksi',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.sensors),
-            label: 'Sensor',
+            icon: Icon(Icons.task),
+            label: 'Jadwal',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -826,7 +826,7 @@ class SensorDataPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Data Sensor Real-time',
+            'Jadwal Pasien',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -879,55 +879,55 @@ class SensorDataPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Data Sensor',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2D3748),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ExpansionTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00897B).withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.sensors,
-                        color: Color(0xFF00897B),
-                      ),
-                    ),
-                    title: Text('ESP32-00${index + 1}'),
-                    subtitle: Text('Last update: ${index + 1} min ago'),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            _buildSensorDataRow('Temperature', '36.5°C', Icons.thermostat, Colors.orange),
-                            const SizedBox(height: 8),
-                            _buildSensorDataRow('Heart Rate', '75 BPM', Icons.favorite, Colors.red),
-                            const SizedBox(height: 8),
-                            _buildSensorDataRow('SpO2', '98%', Icons.air, Colors.blue),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
+          // const SizedBox(height: 16),
+          // const Text(
+          //   'Data Sensor',
+          //   style: TextStyle(
+          //     fontSize: 18,
+          //     fontWeight: FontWeight.bold,
+          //     color: Color(0xFF2D3748),
+          //   ),
+          // ),
+          // const SizedBox(height: 12),
+          // Expanded(
+          //   child: ListView.builder(
+          //     itemCount: 10,
+          //     itemBuilder: (context, index) {
+          //       return Card(
+          //         margin: const EdgeInsets.only(bottom: 12),
+          //         child: ExpansionTile(
+          //           leading: Container(
+          //             padding: const EdgeInsets.all(8),
+          //             decoration: BoxDecoration(
+          //               color: const Color(0xFF00897B).withOpacity(0.1),
+          //               shape: BoxShape.circle,
+          //             ),
+          //             child: const Icon(
+          //               Icons.sensors,
+          //               color: Color(0xFF00897B),
+          //             ),
+          //           ),
+          //           title: Text('ESP32-00${index + 1}'),
+          //           subtitle: Text('Last update: ${index + 1} min ago'),
+          //           children: [
+          //             Padding(
+          //               padding: const EdgeInsets.all(16),
+          //               child: Column(
+          //                 children: [
+          //                   _buildSensorDataRow('Temperature', '36.5°C', Icons.thermostat, Colors.orange),
+          //                   const SizedBox(height: 8),
+          //                   _buildSensorDataRow('Heart Rate', '75 BPM', Icons.favorite, Colors.red),
+          //                   const SizedBox(height: 8),
+          //                   _buildSensorDataRow('SpO2', '98%', Icons.air, Colors.blue),
+          //                 ],
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       );
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
@@ -978,38 +978,8 @@ class SettingsPage extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _buildSettingsSection(
-          'Sistem',
+          'Aktivitas',
           [
-            _buildSettingsTile(
-              context,
-              'Konfigurasi MQTT',
-              'Atur koneksi MQTT broker',
-              Icons.cloud,
-            ),
-            _buildSettingsTile(
-              context,
-              'Database',
-              'Kelola koneksi database',
-              Icons.storage,
-            ),
-            _buildSettingsTile(
-              context,
-              'Notifikasi',
-              'Atur alert dan notifikasi',
-              Icons.notifications,
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        _buildSettingsSection(
-          'Keamanan',
-          [
-            _buildSettingsTile(
-              context,
-              'Ubah Password',
-              'Update password admin',
-              Icons.lock,
-            ),
             _buildSettingsTile(
               context,
               'Log Aktivitas',
@@ -1025,9 +995,9 @@ class SettingsPage extends StatelessWidget {
             _buildSettingsTile(
               context,
               'Versi Aplikasi',
-              'v1.0.0',
+              'v2.0',
               Icons.info,
-              trailing: const Text('v1.0.0'),
+              trailing: const Text('v2.1.0'),
             ),
             _buildSettingsTile(
               context,
