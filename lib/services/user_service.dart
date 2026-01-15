@@ -6,96 +6,66 @@ import '../model/user_model.dart';
 class UserService {
   final DataService _dataService = DataService();
 
-  // Get all users
+  // Get all users from database
   Future<List<UsersModel>> getAllUsers() async {
     try {
       print('Fetching all users...');
 
-      final response = await _dataService.selectAll(
-        token,
-        project,
-        'users',
-        appid,
-      );
+      final response = await _dataService.selectAll(token, project, 'users', appid);
 
       print('Get all users response: $response');
 
-      if (response == null || response == '[]') {
+      if (response == '[]' || response == null || response.isEmpty) {
         return [];
       }
 
-      // Parse response
-      dynamic parsedResponse;
-      if (response is String) {
-        parsedResponse = json.decode(response);
-      } else {
-        parsedResponse = response;
-      }
+      final parsedResponse = json.decode(response);
 
-      // Handle GoCloud API response structure
-      List<dynamic> usersList;
+      dynamic userData;
       if (parsedResponse is Map && parsedResponse.containsKey('data')) {
-        usersList = parsedResponse['data'];
+        userData = parsedResponse['data'];
       } else if (parsedResponse is List) {
-        usersList = parsedResponse;
+        userData = parsedResponse;
       } else {
         return [];
       }
 
-      // Convert to UsersModel list
-      final users = usersList.map((userData) {
-        if (userData is Map<String, dynamic>) {
-          return UsersModel.fromJson(userData);
-        } else {
-          return UsersModel.fromJson(Map<String, dynamic>.from(userData));
-        }
-      }).toList();
+      if (userData is! List || userData.isEmpty) {
+        return [];
+      }
 
+      final users = userData.map((item) => UsersModel.fromJson(item)).toList();
       print('Total users fetched: ${users.length}');
       return users;
     } catch (e) {
-      print('Error fetching users: $e');
+      print('Error getting all users: $e');
       return [];
     }
   }
 
-  // Get user by ID
-  Future<UsersModel?> getUserById(String id) async {
+  // Get user statistics
+  Future<Map<String, dynamic>> getUserStats() async {
     try {
-      final response = await _dataService.selectId(
-        token,
-        project,
-        'users',
-        appid,
-        id,
-      );
+      final users = await getAllUsers();
 
-      if (response == null || response == '[]') {
-        return null;
-      }
+      int totalUsers = users.length;
+      int adminCount = users.where((u) => u.role.toLowerCase() == 'admin').length;
+      int userCount = users.where((u) => u.role.toLowerCase() == 'user').length;
 
-      dynamic parsedResponse;
-      if (response is String) {
-        parsedResponse = json.decode(response);
-      } else {
-        parsedResponse = response;
-      }
-
-      Map<String, dynamic> userData;
-      if (parsedResponse is Map) {
-        if (parsedResponse.containsKey('data')) {
-          userData = Map<String, dynamic>.from(parsedResponse['data']);
-        } else {
-          userData = Map<String, dynamic>.from(parsedResponse);
-        }
-      } else {
-        return null;
-      }
-
-      return UsersModel.fromJson(userData);
+      return {
+        'success': true,
+        'total': totalUsers,
+        'admins': adminCount,
+        'users': userCount,
+      };
     } catch (e) {
-      print('Error getting user by ID: $e');
-      return null;
+      print('Error getting user stats: $e');
+      return {
+        'success': false,
+        'total': 0,
+        'admins': 0,
+        'users': 0,
+      };
     }
   }
 
@@ -110,67 +80,6 @@ class UserService {
     try {
       print('Adding new user: $username');
 
-      // Check if email already exists
-      final checkEmail = await _dataService.selectWhere(
-        token,
-        project,
-        'users',
-        appid,
-        'email',
-        email,
-      );
-
-      if (checkEmail != '[]' && checkEmail != null) {
-        dynamic parsedCheck = json.decode(checkEmail);
-        dynamic existingUsers;
-
-        if (parsedCheck is Map && parsedCheck.containsKey('data')) {
-          existingUsers = parsedCheck['data'];
-        } else if (parsedCheck is List) {
-          existingUsers = parsedCheck;
-        } else {
-          existingUsers = [];
-        }
-
-        if (existingUsers is List && existingUsers.isNotEmpty) {
-          return {
-            'success': false,
-            'message': 'Email sudah terdaftar',
-          };
-        }
-      }
-
-      // Check if username already exists
-      final checkUsername = await _dataService.selectWhere(
-        token,
-        project,
-        'users',
-        appid,
-        'username',
-        username,
-      );
-
-      if (checkUsername != '[]' && checkUsername != null) {
-        dynamic parsedCheck = json.decode(checkUsername);
-        dynamic existingUsers;
-
-        if (parsedCheck is Map && parsedCheck.containsKey('data')) {
-          existingUsers = parsedCheck['data'];
-        } else if (parsedCheck is List) {
-          existingUsers = parsedCheck;
-        } else {
-          existingUsers = [];
-        }
-
-        if (existingUsers is List && existingUsers.isNotEmpty) {
-          return {
-            'success': false,
-            'message': 'Username sudah digunakan',
-          };
-        }
-      }
-
-      // Insert new user
       final response = await _dataService.insertUsers(
         appid,
         username,
@@ -182,7 +91,7 @@ class UserService {
 
       print('Add user response: $response');
 
-      if (response != null && response != '[]' && response.isNotEmpty) {
+      if (response != '[]' && response != null && response.isNotEmpty) {
         return {
           'success': true,
           'message': 'User berhasil ditambahkan',
@@ -197,82 +106,147 @@ class UserService {
       print('Error adding user: $e');
       return {
         'success': false,
-        'message': 'Terjadi kesalahan: ${e.toString()}',
+        'message': 'Error: $e',
       };
     }
   }
 
   // Update user
   Future<Map<String, dynamic>> updateUser({
-    required String id,
-    required String field,
-    required String value,
+    required String userId,
+    String? username,
+    String? nama,
+    String? email,
+    String? password,
+    String? role,
   }) async {
     try {
-      print('Updating user $id: $field = $value');
+      print('Updating user: $userId');
 
-      final response = await _dataService.updateId(
-        field,
-        value,
-        token,
-        project,
-        'users',
-        appid,
-        id,
-      );
+      bool hasError = false;
+      String errorMessage = '';
 
-      print('Update service response: $response');
+      // Update username if provided
+      if (username != null && username.isNotEmpty) {
+        final result = await _dataService.updateId(
+          'username',
+          username,
+          token,
+          project,
+          'users',
+          appid,
+          userId,
+        );
+        if (result != true) {
+          hasError = true;
+          errorMessage = 'Gagal update username';
+        }
+      }
 
-      // Check if response is boolean or string
-      if (response == true) {
-        return {
-          'success': true,
-          'message': 'User berhasil diupdate',
-        };
-      } else if (response is String && response.isNotEmpty && response != '[]') {
-        // Sometimes API returns string response
-        return {
-          'success': true,
-          'message': 'User berhasil diupdate',
-        };
-      } else {
+      // Update nama if provided
+      if (nama != null && nama.isNotEmpty && !hasError) {
+        final result = await _dataService.updateId(
+          'nama',
+          nama,
+          token,
+          project,
+          'users',
+          appid,
+          userId,
+        );
+        if (result != true) {
+          hasError = true;
+          errorMessage = 'Gagal update nama';
+        }
+      }
+
+      // Update email if provided
+      if (email != null && email.isNotEmpty && !hasError) {
+        final result = await _dataService.updateId(
+          'email',
+          email,
+          token,
+          project,
+          'users',
+          appid,
+          userId,
+        );
+        if (result != true) {
+          hasError = true;
+          errorMessage = 'Gagal update email';
+        }
+      }
+
+      // Update password if provided
+      if (password != null && password.isNotEmpty && !hasError) {
+        final result = await _dataService.updateId(
+          'password',
+          password,
+          token,
+          project,
+          'users',
+          appid,
+          userId,
+        );
+        if (result != true) {
+          hasError = true;
+          errorMessage = 'Gagal update password';
+        }
+      }
+
+      // Update role if provided
+      if (role != null && role.isNotEmpty && !hasError) {
+        final result = await _dataService.updateId(
+          'role',
+          role,
+          token,
+          project,
+          'users',
+          appid,
+          userId,
+        );
+        if (result != true) {
+          hasError = true;
+          errorMessage = 'Gagal update role';
+        }
+      }
+
+      if (hasError) {
         return {
           'success': false,
-          'message': 'Gagal mengupdate user. Silakan coba lagi.',
+          'message': errorMessage,
         };
       }
+
+      return {
+        'success': true,
+        'message': 'User berhasil diperbarui',
+      };
     } catch (e) {
       print('Error updating user: $e');
       return {
         'success': false,
-        'message': 'Terjadi kesalahan: ${e.toString()}',
+        'message': 'Error: $e',
       };
     }
   }
 
   // Delete user
-  Future<Map<String, dynamic>> deleteUser(String id) async {
+  Future<Map<String, dynamic>> deleteUser(String userId) async {
     try {
-      print('Deleting user: $id');
+      print('Deleting user: $userId');
 
-      final response = await _dataService.removeId(
+      final result = await _dataService.removeId(
         token,
         project,
         'users',
         appid,
-        id,
+        userId,
       );
 
-      print('Delete service response: $response');
+      print('Delete user result: $result');
 
-      // Check if response is boolean or string
-      if (response == true) {
-        return {
-          'success': true,
-          'message': 'User berhasil dihapus',
-        };
-      } else if (response is String && response.isNotEmpty && response != '[]') {
-        // Sometimes API returns string response
+      if (result == true) {
         return {
           'success': true,
           'message': 'User berhasil dihapus',
@@ -280,82 +254,148 @@ class UserService {
       } else {
         return {
           'success': false,
-          'message': 'Gagal menghapus user. Silakan coba lagi.',
+          'message': 'Gagal menghapus user',
         };
       }
     } catch (e) {
       print('Error deleting user: $e');
       return {
         'success': false,
-        'message': 'Terjadi kesalahan: ${e.toString()}',
+        'message': 'Error: $e',
       };
     }
   }
 
-  // Get users by role
-  Future<List<UsersModel>> getUsersByRole(String role) async {
+  Future<Map<String, dynamic>> updateUsername({
+    required String userId,
+    required String newUsername,
+  }) async {
     try {
+      print('Updating username for userId: $userId to: $newUsername');
+
+      final result = await _dataService.updateId(
+        'username',
+        newUsername,
+        token,
+        project,
+        'users',
+        appid,
+        userId,
+      );
+
+      print('Update username result: $result');
+
+      if (result == true) {
+        return {
+          'success': true,
+          'message': 'Username berhasil diperbarui',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Gagal memperbarui username',
+        };
+      }
+    } catch (e) {
+      print('Error updating username: $e');
+      return {
+        'success': false,
+        'message': 'Error: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> updatePassword({
+    required String userId,
+    required String newPassword,
+  }) async {
+    try {
+      print('Updating password for userId: $userId');
+
+      final result = await _dataService.updateId(
+        'password',
+        newPassword,
+        token,
+        project,
+        'users',
+        appid,
+        userId,
+      );
+
+      print('Update password result: $result');
+
+      if (result == true) {
+        return {
+          'success': true,
+          'message': 'Password berhasil diperbarui',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Gagal memperbarui password',
+        };
+      }
+    } catch (e) {
+      print('Error updating password: $e');
+      return {
+        'success': false,
+        'message': 'Error: $e',
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserByEmail(String email) async {
+    try {
+      print('Getting user by email: $email');
+
       final response = await _dataService.selectWhere(
         token,
         project,
         'users',
         appid,
-        'role',
-        role,
+        'email',
+        email,
       );
 
-      if (response == null || response == '[]') {
-        return [];
+      print('Get user response: $response');
+
+      if (response == '[]' || response == null || response.isEmpty) {
+        return {
+          'success': false,
+          'message': 'User tidak ditemukan',
+        };
       }
 
-      dynamic parsedResponse;
-      if (response is String) {
-        parsedResponse = json.decode(response);
-      } else {
-        parsedResponse = response;
-      }
+      final parsedResponse = json.decode(response);
 
-      List<dynamic> usersList;
+      dynamic userData;
       if (parsedResponse is Map && parsedResponse.containsKey('data')) {
-        usersList = parsedResponse['data'];
+        userData = parsedResponse['data'];
       } else if (parsedResponse is List) {
-        usersList = parsedResponse;
+        userData = parsedResponse;
       } else {
-        return [];
+        return {
+          'success': false,
+          'message': 'Format data tidak valid',
+        };
       }
 
-      return usersList.map((userData) {
-        if (userData is Map<String, dynamic>) {
-          return UsersModel.fromJson(userData);
-        } else {
-          return UsersModel.fromJson(Map<String, dynamic>.from(userData));
-        }
-      }).toList();
-    } catch (e) {
-      print('Error getting users by role: $e');
-      return [];
-    }
-  }
-
-  // Get user statistics
-  Future<Map<String, int>> getUserStats() async {
-    try {
-      final allUsers = await getAllUsers();
-      final totalUsers = allUsers.length;
-      final adminUsers = allUsers.where((user) => user.role == 'admin').length;
-      final regularUsers = allUsers.where((user) => user.role == 'user').length;
+      if (userData is! List || userData.isEmpty) {
+        return {
+          'success': false,
+          'message': 'User tidak ditemukan',
+        };
+      }
 
       return {
-        'total': totalUsers,
-        'admin': adminUsers,
-        'user': regularUsers,
+        'success': true,
+        'user': userData[0],
       };
     } catch (e) {
-      print('Error getting user stats: $e');
+      print('Error getting user: $e');
       return {
-        'total': 0,
-        'admin': 0,
-        'user': 0,
+        'success': false,
+        'message': 'Error: $e',
       };
     }
   }

@@ -137,10 +137,10 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  Map<String, int> _userStats = {
+  Map<String, dynamic> _userStats = {
     'total': 0,
-    'admin': 0,
-    'user': 0,
+    'admins': 0,
+    'users': 0,
   };
   bool _isLoading = true;
 
@@ -214,7 +214,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   Expanded(
                     child: _buildStatCard(
                       'Admin Users',
-                      '${_userStats['admin']}',
+                      '${_userStats['admins']}',
                       Icons.admin_panel_settings,
                       Colors.green,
                     ),
@@ -227,7 +227,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   Expanded(
                     child: _buildStatCard(
                       'Regular Users',
-                      '${_userStats['user']}',
+                      '${_userStats['users']}',
                       Icons.person,
                       Colors.orange,
                     ),
@@ -547,68 +547,21 @@ class _UsersManagementPageState extends State<UsersManagementPage> {
         _isLoading = true;
       });
 
-      // Update multiple fields
-      bool success = true;
-      String message = '';
-
-      // Update username if changed
-      if (result['username'] != user.username) {
-        final response = await widget.userService.updateUser(
-          id: result['id'],
-          field: 'username',
-          value: result['username'],
-        );
-        if (!response['success']) {
-          success = false;
-          message = response['message'];
-        }
-      }
-
-      // Update nama if changed
-      if (result['nama'] != user.nama && success) {
-        final response = await widget.userService.updateUser(
-          id: result['id'],
-          field: 'nama',
-          value: result['nama'],
-        );
-        if (!response['success']) {
-          success = false;
-          message = response['message'];
-        }
-      }
-
-      // Update email if changed
-      if (result['email'] != user.email && success) {
-        final response = await widget.userService.updateUser(
-          id: result['id'],
-          field: 'email',
-          value: result['email'],
-        );
-        if (!response['success']) {
-          success = false;
-          message = response['message'];
-        }
-      }
-
-      // Update role if changed
-      if (result['role'] != user.role && success) {
-        final response = await widget.userService.updateUser(
-          id: result['id'],
-          field: 'role',
-          value: result['role'],
-        );
-        if (!response['success']) {
-          success = false;
-          message = response['message'];
-        }
-      }
+      // Call updateUser with all fields at once
+      final response = await widget.userService.updateUser(
+        userId: result['id'],
+        username: result['username'] != user.username ? result['username'] : null,
+        nama: result['nama'] != user.nama ? result['nama'] : null,
+        email: result['email'] != user.email ? result['email'] : null,
+        role: result['role'] != user.role ? result['role'] : null,
+      );
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? 'User berhasil diupdate' : message),
-          backgroundColor: success ? Colors.green : Colors.red,
+          content: Text(response['message']),
+          backgroundColor: response['success'] ? Colors.green : Colors.red,
         ),
       );
 

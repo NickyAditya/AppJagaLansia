@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -214,14 +215,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildActionButton(
                       icon: Icons.edit_outlined,
                       title: 'Edit Profil',
-                      onTap: () {
-                        // TODO: Navigate to edit profile
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Fitur edit profil akan segera hadir'),
-                            behavior: SnackBarBehavior.floating,
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileScreen(),
                           ),
                         );
+
+                        // Reload user data if changes were made
+                        if (result == true) {
+                          _loadUserData();
+                        }
                       },
                     ),
                     const SizedBox(height: 15),
