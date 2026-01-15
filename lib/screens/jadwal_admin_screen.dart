@@ -232,6 +232,20 @@ class _JadwalAdminScreenState extends State<JadwalAdminScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.person, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    jadwal.nama_user,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF00897B),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: 8),
                               Row(
                                 children: [
