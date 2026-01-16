@@ -9,6 +9,7 @@ import 'login_screen.dart';
 import 'obat_screen.dart';
 import 'transaksi_screen.dart';
 import 'jadwal_admin_screen.dart';
+import 'admin_help_screen.dart';
 
 class DashboardAdmin extends StatefulWidget {
   const DashboardAdmin({super.key});
@@ -33,15 +34,6 @@ class _DashboardAdminState extends State<DashboardAdmin> {
         backgroundColor: const Color(0xFF00897B),
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {
-              // TODO: Implement notifications
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications coming soon')),
-              );
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
@@ -119,8 +111,8 @@ class _DashboardAdminState extends State<DashboardAdmin> {
             label: 'Jadwal',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.info_outline),
+            label: 'Tentang',
           ),
         ],
       ),
@@ -1130,28 +1122,16 @@ class SettingsPage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const Text(
-          'Pengaturan',
+          'Tentang Aplikasi',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Color(0xFF00897B),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 1),
         _buildSettingsSection(
-          'Aktivitas',
-          [
-            _buildSettingsTile(
-              context,
-              'Log Aktivitas',
-              'Lihat riwayat aktivitas',
-              Icons.history,
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        _buildSettingsSection(
-          'Tentang',
+          '',
           [
             _buildSettingsTile(
               context,
@@ -1212,9 +1192,16 @@ class SettingsPage extends StatelessWidget {
         subtitle: Text(subtitle),
         trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$title feature coming soon')),
-          );
+          if (title == 'Bantuan') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminHelpScreen()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$title feature coming soon')),
+            );
+          }
         },
       ),
     );
