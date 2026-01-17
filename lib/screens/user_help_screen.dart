@@ -181,7 +181,7 @@ class UserHelpScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Hubungi Tim Support',
+                    'Developer Support',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -198,11 +198,9 @@ class UserHelpScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildContactRow(Icons.email, 'support@jagalansia.com'),
-                  const SizedBox(height: 8),
-                  _buildContactRow(Icons.phone, '+62 812-3456-7890'),
-                  const SizedBox(height: 8),
-                  _buildContactRow(Icons.access_time, 'Senin - Jumat: 08:00 - 17:00 WIB'),
+                  _buildContactRow(Icons.person, '152023065 - Nicky Aditya Bagus'),
+                  const SizedBox(height: 16),
+                  _buildContactRow(Icons.person, '152023046 - Rafi Syahrulfalah'),
                 ],
               ),
             ),

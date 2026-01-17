@@ -143,27 +143,20 @@ class AdminHelpScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Support Section
-            _buildSectionTitle('Support & Kontak'),
+            _buildSectionTitle('Our Developer Team'),
             const SizedBox(height: 12),
             _buildSupportCard(
-              'Email Support',
-              'support@jagalansia.com',
-              Icons.email,
+              'Developer 1',
+              '152023065 - Nicky Aditya Bagus',
+              Icons.person,
               Colors.blue,
             ),
             const SizedBox(height: 8),
             _buildSupportCard(
-              'Hotline',
-              '+62 812-3456-7890',
-              Icons.phone,
+              'Developer 2',
+              '152023046 - Rafi Syahrulfalah',
+              Icons.person,
               Colors.green,
-            ),
-            const SizedBox(height: 8),
-            _buildSupportCard(
-              'Jam Operasional',
-              'Senin - Jumat: 08:00 - 17:00 WIB',
-              Icons.access_time,
-              Colors.orange,
             ),
             const SizedBox(height: 24),
 
