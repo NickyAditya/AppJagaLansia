@@ -180,15 +180,28 @@ AppJagaLansia/
 
 ## 📱 Screenshots
 
-> *Coming soon - Screenshots akan ditambahkan segera! *
-
-<!-- Uncomment dan tambahkan screenshots Anda
 <div align="center">
-  <img src="screenshots/welcome. png" width="250" alt="Welcome Screen"/>
-  <img src="screenshots/login. png" width="250" alt="Login Screen"/>
-  <img src="screenshots/dashboard.png" width="250" alt="Dashboard"/>
+
+### 🔐 Login & Register
+
+<img src="Flutter Jaga Lansia/jagalansia_login.jpg" width="250" alt="Login Screen"/>
+<img src="Flutter Jaga Lansia/jagalansia_register.jpg" width="250" alt="Register Screen"/>
+
+### 👤 Dashboard User
+
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_user.jpg" width="250" alt="Dashboard User"/>
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_user_cuaca.jpg" width="250" alt="Dashboard User Cuaca"/>
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_user_pembelian.jpg" width="250" alt="Dashboard User Pembelian"/>
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_user_profil.jpg" width="250" alt="Dashboard User Profil"/>
+
+### 🛠️ Dashboard Admin
+
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_admin.jpg" width="250" alt="Dashboard Admin"/>
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_admin_manage_obat.jpg" width="250" alt="Dashboard Admin Manage Obat"/>
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_admin_manage_transaksi.jpg" width="250" alt="Dashboard Admin Manage Transaksi"/>
+<img src="Flutter Jaga Lansia/jagalansia_dashboard_admin_manage_user.jpg" width="250" alt="Dashboard Admin Manage User"/>
+
 </div>
--->
 
 ---
 
